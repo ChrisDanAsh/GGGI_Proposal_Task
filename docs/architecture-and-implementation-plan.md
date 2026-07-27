@@ -387,7 +387,7 @@ route catches it, and the response status is `409 Conflict`.
 |---|---|---|---|
 | 1 | `GET /proposals?country=KE&category=smart_grid` | Route | Both parameters optional; a value not in the enums is discarded rather than erroring |
 | 2 | Service called | Service | `list_proposals(repo, country="KE", category="smart_grid")` |
-| 3 | Query built | Repository | `WHERE deleted_at IS NULL AND country = :country AND category = :category ORDER BY created_at DESC`. Conditions are appended only when the argument is present |
+| 3 | Query built | Repository | `WHERE deleted_at IS NULL AND country = :country AND category = :category ORDER BY created_at DESC, lower(project_name) ASC`. Conditions are appended only when the argument is present; the second sort key is a tie-break for rows sharing the same timestamp — see §4.7 |
 | 4 | Postgres filters | Database | Indexes on `country` and `category` are used; filtering happens in the database, not in Python |
 | 5 | Table rendered | Template | `list.html` loops the rows; each project name links to `/proposals/{id}`; both dropdowns keep the current selection; an empty result renders an explanatory row, not a blank table |
 
@@ -1603,7 +1603,9 @@ verified by reading a single file.
               stmt = stmt.where(Proposal.country == country)
           if category:
               stmt = stmt.where(Proposal.category == category)
-          stmt = stmt.order_by(Proposal.created_at.desc(), Proposal.id.desc())
+          stmt = stmt.order_by(
+              Proposal.created_at.desc(), func.lower(Proposal.project_name).asc()
+          )
           return list(self.db.scalars(stmt))
 
       def exists_with_name(
@@ -1640,11 +1642,20 @@ verified by reading a single file.
   the condition is simply not added — Postgres does the filtering,
   using the indexes, instead of every row being loaded into Python
   and filtered there.
-- **The tie-break `Proposal.id.desc()`** is appended to the ordering.
-  Ten seeded rows can share a `created_at` value to microsecond
-  precision, and without a tie-break the list order would vary
-  between page loads, which would make list-ordering assertions in
-  §6 flaky.
+- **The tie-break is alphabetical, not `Proposal.id.desc()`.** Ten
+  seeded rows can share a `created_at` value down to microsecond
+  precision — Postgres's `now()` is fixed for the whole transaction,
+  not evaluated per row, and `scripts/seed.py` inserts all ten rows in
+  one transaction — so the tie-break, not the primary key, is what
+  actually determines the visible order for that data. A UUID-based
+  tie-break is deterministic (the same query always returns the same
+  order) but meaningless to a person, since UUID bytes carry no
+  relationship to name or insertion order; it reads as arbitrary
+  rather than sorted. `func.lower(Proposal.project_name).asc()`
+  fixes that: same-instant rows fall back to alphabetical order,
+  case-insensitively, matching `exists_with_name`'s own
+  case-insensitive comparison so "apple" and "Banana" interleave the
+  way a person expects rather than sorting by ASCII byte value.
 - **`exists_with_name` is case-insensitive** via `func.lower(...)` on
   both sides. Two proposals called "Solar Mini-Grid" and "solar
   mini-grid" are the same proposal as far as a reviewer is concerned.
@@ -3696,6 +3707,7 @@ Database, but no HTTP.
 | V-9 | Both filters together | Only rows matching both |
 | V-10 | A filter matching nothing | Empty list, no error |
 | V-11 | `list_proposals()` with no filters | Every live proposal, newest first |
+| V-11b | Multiple proposals sharing an identical `created_at` (the realistic seeded-data case, since Postgres's `now()` is fixed for the whole transaction) | Same-instant rows fall back to alphabetical order by project name, case-insensitively — not an arbitrary UUID-based order |
 | V-12 **[REQ]** | `delete_proposal`, then `list_proposals()` | The proposal is absent from the list |
 | V-13 | After `delete_proposal`, query the row directly | The row still exists and `deleted_at` is set — the delete is soft |
 | V-14 | `delete_proposal` twice | Second call raises `ProposalNotFoundError` |

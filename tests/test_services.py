@@ -158,6 +158,26 @@ def test_v11_list_all_newest_first(repo: ProposalRepository) -> None:
     assert [p.id for p in results] == [newest.id, middle.id, oldest.id]
 
 
+# V-11b - rows sharing an identical created_at fall back to alphabetical
+# order (case-insensitive) rather than an arbitrary UUID-based order.
+# This is the realistic case for seeded data: Postgres's now() is fixed
+# for the whole transaction, so rows inserted back to back in one
+# transaction (as scripts/seed.py does) carry the same timestamp.
+def test_v11b_same_timestamp_falls_back_to_alphabetical(
+    repo: ProposalRepository,
+) -> None:
+    same_instant = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    zebra = _create(repo, project_name="Zebra Project")
+    _stagger_created_at(repo, zebra, same_instant)
+    apple = _create(repo, project_name="apple project")
+    _stagger_created_at(repo, apple, same_instant)
+    banana = _create(repo, project_name="Banana Project")
+    _stagger_created_at(repo, banana, same_instant)
+
+    results = list_proposals(repo)
+    assert [p.id for p in results] == [apple.id, banana.id, zebra.id]
+
+
 # V-12 [REQ] - deleting removes the proposal from the list
 def test_v12_delete_removes_from_list(repo: ProposalRepository) -> None:
     proposal = _create(repo)

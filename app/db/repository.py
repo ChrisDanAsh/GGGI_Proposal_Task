@@ -60,11 +60,17 @@ class ProposalRepository:
             stmt = stmt.where(Proposal.country == country)
         if category:
             stmt = stmt.where(Proposal.category == category)
-        # Proposal.id.desc() is a tie-break: several seeded rows can share
-        # created_at down to microsecond precision, and without a
-        # secondary sort key the list order would vary between page
-        # loads, which would make list-ordering tests flaky.
-        stmt = stmt.order_by(Proposal.created_at.desc(), Proposal.id.desc())
+        # func.lower(project_name) is the tie-break: several seeded rows
+        # can share created_at down to microsecond precision (Postgres's
+        # now() is fixed for the whole transaction, not per row), and a
+        # UUID-based tie-break would make same-instant rows appear in an
+        # arbitrary order. Sorting the tie-break alphabetically instead
+        # means same-instant rows land in a human-meaningful order; the
+        # lower() call matches exists_with_name's own case-insensitive
+        # comparison so "apple" and "Banana" interleave as expected.
+        stmt = stmt.order_by(
+            Proposal.created_at.desc(), func.lower(Proposal.project_name).asc()
+        )
         return list(self.db.scalars(stmt))
 
     def exists_with_name(
