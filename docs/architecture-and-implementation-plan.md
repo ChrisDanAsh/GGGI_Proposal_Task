@@ -600,32 +600,45 @@ it.
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 jinja2==3.1.5
-pydantic==2.10.5
-pydantic-settings==2.7.1
+pydantic==2.13.4
+pydantic-settings==2.14.2
 sqlalchemy==2.0.36
 alembic==1.14.0
-psycopg[binary]==3.2.3
+psycopg[binary]==3.2.13
 python-multipart==0.0.20
 pytest==8.3.4
 httpx==0.28.1
 ```
 
-**Verify wheel availability for 3.14 before installing.** Every
-package above ships pure-Python wheels except `psycopg[binary]`,
-which ships a pre-compiled binary per Python version — the entire
-reason `[binary]` is specified is to avoid needing a C toolchain
-(§4.0, below). If PyPI has not yet published a `cp314` wheel for
-`psycopg[binary]==3.2.3` at build time, `pip install` will either
-fail outright or fall back to a source build that requires
-PostgreSQL's `libpq` headers and a C compiler — neither of which is
-otherwise needed on this machine. Confirm with
-`pip install --dry-run psycopg[binary]==3.2.3` (or check
-[pypi.org/project/psycopg-binary/#files](https://pypi.org/project/psycopg-binary/#files)
-for a `cp314` tag) before running the real install. If no such wheel
-exists yet, either bump `psycopg[binary]` to the newest 3.2.x patch
-that does publish one, or create the virtual environment against
-Python 3.12 or 3.13 specifically via `py -3.12 -m venv .venv`
-instead of the default `py -m venv .venv`.
+**`pydantic`, `pydantic-settings`, and `psycopg[binary]` are pinned
+above their originally intended versions, because installation on
+this machine proved it necessary — this is the resolved state, not a
+hypothetical.** Two separate wheel gaps surfaced against Python 3.14:
+
+- `psycopg[binary]==3.2.3` has no `cp314` wheel; `3.2.10` is the
+  earliest patch on the 3.2.x line that does. Bumped to `3.2.13`, the
+  newest 3.2.x patch, keeping the change as small as possible.
+- `pydantic==2.10.5` pulls in `pydantic-core==2.27.2`, a Rust
+  extension with **no `cp314` wheel at any patch on that line** — not
+  a stale patch but an entire minor series predating 3.14's release.
+  `pip` fell back to compiling it from source, which failed at the
+  link stage (`link.exe failed: exit code: 1`) for want of a working
+  Rust/MSVC toolchain — nothing this project should need just to
+  install a dependency. Bumped `pydantic` to `2.13.4` and
+  `pydantic-settings` to `2.14.2` (the versions current at build
+  time), which pull `pydantic-core==2.46.4`, confirmed to ship a
+  `cp314` wheel.
+
+Before installing on another machine, re-verify with
+`pip index versions <package>` and a `pip download --no-deps
+<package>==<version>` dry run for whichever Python version is
+actually present, rather than assuming these exact pins remain
+correct — wheel availability is a function of *when* a package was
+published relative to a Python release, and both shift over time. If
+a gap appears again, the fallback that avoids chasing pins
+indefinitely is to create the virtual environment against Python 3.12
+or 3.13 specifically (`py -3.12 -m venv .venv`), where every version
+in this file already has full wheel coverage.
 
 Notes on three of these, which are easy to omit and produce
 confusing failures:
