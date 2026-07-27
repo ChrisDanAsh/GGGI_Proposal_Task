@@ -5,6 +5,10 @@ A small web application for the Climate Technology Accelerator Fund
 proposals, validated and stored in Postgres, then browsed, filtered,
 edited, and deleted. Built for assignment reference **INT_CTL015_E1**.
 
+**Live demo:** [gggi-proposal-task.onrender.com](https://gggi-proposal-task.onrender.com)
+*(hosted on Render's free tier — the instance spins down when idle, so
+the first request after a while can take up to a minute to load)*
+
 ![The populated list page](docs/img/list-page.png)
 
 *The populated list page, taken after `docker compose up --build`.*
