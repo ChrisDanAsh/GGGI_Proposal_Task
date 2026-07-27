@@ -16,7 +16,14 @@ the first request after a while can take up to a minute to load*
 
 ![The populated list page](docs/img/list-page.png)
 
-*The populated list page, taken after `docker compose up --build`.*
+
+---
+
+## Recorded Demo
+
+[Loom Video](https://www.loom.com/share/d31188b2cee041cb82b7a2f0d586e09a)
+
+*Video showcasing the functionality of the web app hosted on the live demo site*
 
 ---
 
