@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.api import proposals as api_proposals
 from app.config import get_settings
 from app.web import proposals as web_proposals
 from app.web.templates import templates
@@ -41,9 +42,7 @@ app = FastAPI(
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 app.include_router(web_proposals.router)
-# The JSON API router (Module 14, Phase 5) is included here once it
-# exists; nothing above depends on it, so this file needs only one more
-# line - `app.include_router(api_proposals.router)` - when that module lands.
+app.include_router(api_proposals.router)
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -55,10 +54,10 @@ def http_exception_handler(
     Registered on Starlette's own HTTPException (not FastAPI's re-export)
     so it also catches errors raised inside Starlette itself, such as an
     unmatched route producing a plain 404 before any route code runs.
-    Branches on the path prefix so a future /api/... request (Module 14)
-    keeps getting a JSON error body it can parse, while every HTML route
-    in this module gets a page that still looks like the rest of the site
-    (error.html) rather than a bare JSON object.
+    Branches on the path prefix so an /api/... request (Module 14) gets
+    a JSON error body it can parse, while every HTML route gets a page
+    that still looks like the rest of the site (error.html) rather than
+    a bare JSON object.
     """
     if request.url.path.startswith("/api"):
         return JSONResponse(
