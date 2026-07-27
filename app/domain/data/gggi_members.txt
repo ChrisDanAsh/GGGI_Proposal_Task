@@ -1,0 +1,61 @@
+# GGGI Assembly Member States, with accession dates.
+# Source: https://gggi.org/wp-content/uploads/2026/03/20260312_Assembly-States-and-Membership-Dates.pdf
+# Retrieved: 2026-07-27. Official list dated 2026-03-12.
+# Format: ISO-3166-1-alpha-2 | display name | accession date (YYYY-MM-DD)
+# Note: the official list also includes OECS (Organisation of Eastern
+# Caribbean States), a regional integration organisation rather than a
+# country. It is omitted here because this field is a target *country*.
+DK|Denmark|2012-10-18
+GY|Guyana|2012-10-18
+KI|Kiribati|2012-10-18
+PH|Philippines|2012-11-08
+KR|Republic of Korea|2012-12-29
+VN|Viet Nam|2013-01-11
+KH|Cambodia|2013-03-24
+QA|Qatar|2013-03-24
+PG|Papua New Guinea|2013-04-10
+AE|United Arab Emirates|2013-05-29
+GB|United Kingdom|2013-06-27
+ET|Ethiopia|2013-08-04
+NO|Norway|2013-09-25
+FJ|Fiji|2014-04-25
+JO|Jordan|2014-05-10
+MN|Mongolia|2014-07-20
+CR|Costa Rica|2014-10-18
+ID|Indonesia|2014-10-26
+AU|Australia|2014-11-16
+MX|Mexico|2014-11-19
+VU|Vanuatu|2014-12-07
+SN|Senegal|2014-12-09
+HU|Hungary|2016-02-13
+TH|Thailand|2016-02-28
+RW|Rwanda|2016-09-11
+PE|Peru|2016-10-19
+LA|Lao PDR|2017-10-07
+PY|Paraguay|2018-09-13
+TO|Tonga|2018-12-17
+LK|Sri Lanka|2019-01-13
+UZ|Uzbekistan|2019-03-09
+BF|Burkina Faso|2019-04-14
+UG|Uganda|2019-08-28
+AO|Angola|2019-11-23
+EC|Ecuador|2019-11-23
+KG|Kyrgyz Republic|2020-05-15
+CI|Côte d'Ivoire|2020-09-24
+CO|Colombia|2021-04-14
+NI|Nicaragua|2021-10-16
+PK|Pakistan|2021-11-11
+TM|Turkmenistan|2022-03-06
+BH|Bahrain|2022-03-18
+NP|Nepal|2022-10-23
+KZ|Kazakhstan|2022-12-16
+ZM|Zambia|2023-07-23
+SV|El Salvador|2023-09-28
+TG|Togo|2023-11-04
+TJ|Tajikistan|2024-12-06
+KE|Kenya|2025-04-18
+BJ|Benin|2025-08-27
+DZ|Algeria|2025-08-28
+MA|Morocco|2025-11-14
+SB|Solomon Islands|2025-12-24
+LU|Luxembourg|2026-03-12
