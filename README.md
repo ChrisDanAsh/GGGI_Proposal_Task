@@ -20,7 +20,7 @@ the first request after a while can take up to a minute to load)*
 The primary path. Requires only Docker.
 
 ```
-git clone <this-repo-url>
+git clone https://github.com/ChrisDanAsh/GGGI_Proposal_Task.git
 cd GGGI_Proposal_Task
 docker compose up --build
 ```
