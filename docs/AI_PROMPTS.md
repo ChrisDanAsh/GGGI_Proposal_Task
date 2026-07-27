@@ -1,47 +1,97 @@
 # AI Prompt Usage Note
 
-*Draft — written from the session record. Review and adjust in your
-own words before submitting; this should reflect your actual
-experience, not just what the tool log shows.*
+The process of creating this project was layered.
 
-This application was built with Claude Code (Anthropic), working from
-a detailed specification (`docs/architecture-and-implementation-plan.md`)
-written and refined before any code existed.
+## 1. Understanding the problem space
 
-Three prompts that shaped the process most:
+Since most of my prior work was solely creating APIs, I had little
+knowledge of how to build web applications. My first step was
+therefore to understand exactly what a web app is and how one is
+created.
 
-1. **"Implement module N of this plan"** / **"Implement Phase N"** —
-   the recurring prompt for nearly the whole build, issued once per
-   module or phase in the plan's own order (Modules 1 through 18,
-   Phases 1 through 6). Each time, the relevant section of the spec was
-   read in full first, then transcribed into working code. Output was
-   used essentially as-is: the specification fixed enough detail
-   (exact status codes, exact SQLAlchemy settings, the reasoning behind
-   each choice) that little was left to the model's judgment at
-   implementation time.
+This led to the creation of [climate-proposal-app-plan.md](climate-proposal-app-plan.md),
+produced with Claude AI after several prompts. The first prompt used
+was:
 
-2. **"implement modules 8 to 10 including their requisite tests to
-   ensure that they are implemented properly"** — asked explicitly for
-   test coverage rather than trusting an implementation was correct
-   because it ran without error. In response, the model didn't just
-   write tests that passed — it deliberately reintroduced a bug (e.g.
-   removing the duplicate-name check, adding back an inline event
-   handler) to confirm the corresponding test actually failed, then
-   reverted it and reconfirmed the suite was green. That verify-by-
-   breaking-it pattern was then applied to later phases without being
-   asked for again.
+> I have experience in Python and building APIs using Docker and
+> running them on GCP. Help me understand what tools would best fit
+> me to solve the following task. Explain the tools that I would need
+> and what the process would be in building a version of this task
+> that would last in the long term, whose functionality could be
+> incrementally added to over time. It must not just be built with
+> production in mind and must be scalable.
+>
+> Task:
+> {Task inserted here}
 
-3. **"during coding ensure that all code is clearly commented so that
+This conversation was carried out until I had a solid understanding of
+what a web application is, how it works, and what steps are required
+to build one.
+
+## 2. Architecture and implementation planning
+
+The next step was creating the architecture and detailed
+implementation plan.
+
+I know how to code, but my true strength is understanding how systems
+work. I therefore spend most of my time on architectural documents to
+ensure the logic behind the code is sound.
+
+[architecture-and-implementation-plan.md](architecture-and-implementation-plan.md)
+details exactly what is going to be built and exactly how it should be
+built.
+
+I arrived at this method of working with AI after trial and error at
+my last job, and found it to be one of the more effective ways to use
+AI to write code: there is very little room for the AI to make
+mistakes during implementation, since the context for the code is set
+and all of the major decisions are made beforehand. All that is left
+for the AI to do afterward is implement what is in the file, which
+greatly reduces the chance of errors in the code.
+
+Since this is a document style I have refined over time, I reuse
+previous versions of this document to create new versions — so the
+prompt used to create this plan included previous planning documents
+alongside the task document.
+
+The resulting plan is always read over and edited to ensure the
+decisions being made match the goals of the project, using logic I
+deem sound. It is rare for the first version to be exactly what is
+necessary. Once the plan is built, however, there is rarely much work
+left to do on it again.
+
+### Cross-checking the plan with a second AI
+
+I also double-check the plan against a second AI. I personally find
+Codex produces more robust code and is better at finding coding-level
+problems, whereas Claude is better at ideation. So once the plan has
+been reviewed, the following prompt is used in Codex to find any flaws
+that may exist:
+
+> [CTAF_Coding_Assignment.pdf](CTAF_Coding_Assignment.pdf) — here is
+> the assignment. Does the
+> [architecture-and-implementation-plan.md](architecture-and-implementation-plan.md)
+> fully meet all of the requirements of the task, and is the plan
+> production-grade and scalable/upgradeable?
+
+Any errors found in the plan are sent to Claude to review and fix.
+This is an iterative process, repeated until no more major errors are
+found.
+
+## 3. Implementation
+
+Once the plan is complete, most of the work is done, and the following
+prompt is used for essentially the rest of development:
+
+1. **"Implement module N of this plan"** / **"Implement Phase N"**
+
+Also, the prompt below was used to ensure that the code is readable in
+case any sections need to be reviewed in the future:
+
+2. **"during coding ensure that all code is clearly commented so that
    someone reading the code would know what the code does and the
-   purpose of the code as well"** — a correction issued mid-session,
-   after noticing the model's default comment density was too sparse
-   for this project. The model went back and expanded comments on
-   already-written files, and kept the denser style for every file
-   written afterward.
+   purpose of the code as well"**
 
-Modification of the model's output: none of the generated code was
-hand-edited after the fact. A few implementation choices not fully
-pinned down by the spec (e.g. whether the edit route should fetch the
-proposal before or after validating submitted form data) were left to
-the model's judgment, with its reasoning stated inline in code comments
-or in the chat response, rather than silently decided.
+No modifications were made to the code developed by the AI, and all
+testing was done using the created tests and live testing of the
+actual application to ensure that it works as expected.

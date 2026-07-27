@@ -5,8 +5,9 @@ A small web application for the Climate Technology Accelerator Fund
 proposals, validated and stored in Postgres, then browsed, filtered,
 edited, and deleted. Built for assignment reference **INT_CTL015_E1**.
 
-> **Screenshot**: to be added at `docs/img/list-page.png` (the
-> populated list page, taken after `docker compose up --build`).
+![The populated list page](docs/img/list-page.png)
+
+*The populated list page, taken after `docker compose up --build`.*
 
 ---
 
