@@ -185,15 +185,18 @@ reach.
 
 ---
 
-## What I would add with more time
+## Future additions / improvements
 
-Pagination on the list page, user accounts with per-proposal
-ownership (the nullable `owner_id` column exists for exactly this), a
-partial unique index backstopping the application-level uniqueness
-check against a race between two simultaneous submissions, and a
-proper error-tracking setup. The full list, each with an estimate of
-the work involved, is in
-[§7 of the architecture document](docs/architecture-and-implementation-plan.md#7-future-works-and-potential-add-ons).
+- Pagination on the list page.
+- User accounts with per-proposal ownership (the nullable `owner_id`
+  column exists for exactly this).
+- A partial unique index backstopping the application-level
+  uniqueness check against a race between two simultaneous
+  submissions.
+- A proper error-tracking setup.
+
+> The full list, each with an estimate of the work involved, is in
+> [§7 of the architecture document](docs/architecture-and-implementation-plan.md#7-future-works-and-potential-add-ons).
 
 ## AI-prompt usage note
 
