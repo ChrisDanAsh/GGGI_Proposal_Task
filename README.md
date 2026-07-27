@@ -197,6 +197,10 @@ reach.
 ## Future additions / improvements
 
 - Pagination on the list page.
+- User-selectable list ordering — a `sort` control (oldest first,
+  alphabetical, reverse alphabetical) alongside the existing country
+  and category filters. Today the order is fixed: newest first,
+  falling back to alphabetical for rows sharing a submitted timestamp.
 - User accounts with per-proposal ownership (the nullable `owner_id`
   column exists for exactly this).
 - A partial unique index backstopping the application-level

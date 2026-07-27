@@ -3867,11 +3867,26 @@ invalidation, since the point of the move is that the list can change
 while the process is running — which is also when an admin screen for
 adding a country starts being worth building.
 
-**Pagination and sorting on the list page.** Ten proposals fit on one
-screen; five hundred do not. `list()` in the repository is the only
-place that changes — a `limit`/`offset` pair and an `order_by`
-argument — plus page controls in `list.html` and two query
-parameters on the route. The layering means no other file is touched.
+**Pagination on the list page.** Ten proposals fit on one screen; five
+hundred do not. `list()` in the repository is the only place that
+changes — a `limit`/`offset` pair — plus page controls in `list.html`
+and two query parameters on the route. The layering means no other
+file is touched.
+
+**User-selectable list ordering.** The list is currently fixed to one
+order — newest first (`created_at DESC`), falling back to alphabetical
+by project name for rows sharing a `created_at` (§4.4's "the tie-break
+is alphabetical" decision). Nothing lets a person choose a different
+view: oldest first, alphabetical, or reverse alphabetical are all
+reasonable ways to scan the same ten-to-five-hundred proposals, and
+today `list()` accepts no such argument. The work: a `sort` query
+parameter on `GET /proposals` (a small enum — `newest`, `oldest`,
+`name`, `name_desc` — validated the same way `country` and `category`
+already are), a matching `order_by` argument threaded through
+`ProposalRepository.list()`, and a control in `list.html` alongside
+the existing country and category filters so the choice composes with
+them rather than replacing them. Small in scope because it reuses the
+exact pattern the two existing filters already established.
 
 **Free-text search.** A search box matching against project name and
 summary. Postgres full-text search (`to_tsvector` with a GIN index)
