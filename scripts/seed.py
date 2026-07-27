@@ -16,10 +16,14 @@ from app.services.proposal import create_proposal
 # reproducible. Every country code below must be a real GGGI member -
 # checked against app/domain/data/gggi_members.txt rather than assumed,
 # since a plausible-looking code (India, for instance) can still be
-# wrong. Start dates are in 2026, forward of this document's date, so
-# the data reads as a live pipeline rather than a historical archive;
-# one entry has no start date at all, exercising that optional field on
-# both the list and detail pages.
+# wrong. Start dates are in 2027, forward of the submitted date
+# (`created_at`, stamped by Postgres at insert time), so the data reads
+# as a live pipeline rather than a historical archive; one entry has no
+# start date at all, exercising that optional field on both the list
+# and detail pages. Nothing currently stops a start date from
+# predating the submitted date - see the "future additions" note in
+# the README and §7 of the architecture doc - so this ordering is kept
+# true by convention here rather than by a validation rule.
 #
 # Countries: KE x2, ET x2, RW, VN, ID, PH, MN, PE - eight distinct
 # countries, two repeated so filtering by country visibly returns more
@@ -32,7 +36,7 @@ SEED_PROPOSALS: list[dict[str, object]] = [
         "country": "KE",
         "category": "renewable_energy",
         "budget_usd": "2450000.00",
-        "start_date": "2026-03-01",
+        "start_date": "2027-03-01",
         "summary": (
             "Expands the existing Lake Turkana mini-grid with an "
             "additional 8 MW of solar generation and battery storage, "
@@ -45,7 +49,7 @@ SEED_PROPOSALS: list[dict[str, object]] = [
         "country": "KE",
         "category": "smart_grid",
         "budget_usd": "1180000.00",
-        "start_date": "2026-05-15",
+        "start_date": "2027-05-15",
         "summary": (
             "Deploys 40,000 smart meters across three Nairobi "
             "distribution substations, giving the utility real-time "
@@ -58,7 +62,7 @@ SEED_PROPOSALS: list[dict[str, object]] = [
         "country": "ET",
         "category": "climate_risk_mapping",
         "budget_usd": "640000.00",
-        "start_date": "2026-01-20",
+        "start_date": "2027-01-20",
         "summary": (
             "Produces a high-resolution flood exposure atlas for the "
             "Ethiopian Rift Valley, combining satellite rainfall data "
@@ -84,7 +88,7 @@ SEED_PROPOSALS: list[dict[str, object]] = [
         "country": "RW",
         "category": "renewable_energy",
         "budget_usd": "375000.00",
-        "start_date": "2026-07-01",
+        "start_date": "2027-07-01",
         "summary": (
             "Finances a rooftop solar cooperative across 600 households "
             "and small workshops in Kigali, pooling purchasing power to "
@@ -96,7 +100,7 @@ SEED_PROPOSALS: list[dict[str, object]] = [
         "country": "VN",
         "category": "climate_risk_mapping",
         "budget_usd": "1520000.00",
-        "start_date": "2026-02-10",
+        "start_date": "2027-02-10",
         "summary": (
             "Maps seasonal saltwater intrusion across the Mekong "
             "Delta's rice-growing provinces using river-mouth sensors "
@@ -109,7 +113,7 @@ SEED_PROPOSALS: list[dict[str, object]] = [
         "country": "ID",
         "category": "renewable_energy",
         "budget_usd": "4300000.00",
-        "start_date": "2026-09-01",
+        "start_date": "2027-09-01",
         "summary": (
             "Pilots a 5 MW wellhead geothermal unit on an underused "
             "exploration well in West Java, testing a lower-cost "
@@ -122,7 +126,7 @@ SEED_PROPOSALS: list[dict[str, object]] = [
         "country": "PH",
         "category": "smart_grid",
         "budget_usd": "2760000.00",
-        "start_date": "2026-04-05",
+        "start_date": "2027-04-05",
         "summary": (
             "Upgrades transmission towers and adds automated "
             "sectionalising switches across a typhoon-exposed Luzon "
@@ -135,7 +139,7 @@ SEED_PROPOSALS: list[dict[str, object]] = [
         "country": "MN",
         "category": "renewable_energy",
         "budget_usd": "3100000.00",
-        "start_date": "2026-06-12",
+        "start_date": "2027-06-12",
         "summary": (
             "Develops a 150 MW utility-scale solar corridor across "
             "degraded Gobi Desert grazing land unsuitable for "
@@ -150,7 +154,7 @@ SEED_PROPOSALS: list[dict[str, object]] = [
         "country": "PE",
         "category": "climate_risk_mapping",
         "budget_usd": "725000.00",
-        "start_date": "2026-08-18",
+        "start_date": "2027-08-18",
         "summary": (
             "Installs automated monitoring stations on retreating "
             "Andean glaciers feeding Lima's water supply, providing "

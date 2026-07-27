@@ -18,7 +18,7 @@ was:
 > me to solve the following task. Explain the tools that I would need
 > and what the process would be in building a version of this task
 > that would last in the long term, whose functionality could be
-> incrementally added to over time. It must not just be built with
+> incrementally added to over time. It must be built with
 > production in mind and must be scalable.
 >
 > Task:
@@ -35,11 +35,17 @@ implementation plan.
 
 I know how to code, but my true strength is understanding how systems
 work. I therefore spend most of my time on architectural documents to
-ensure the logic behind the code is sound.
+ensure the logic behind the code is sound. 
 
 [architecture-and-implementation-plan.md](architecture-and-implementation-plan.md)
 details exactly what is going to be built and exactly how it should be
 built.
+
+It also serves as very detailed documentation for the code base ensuring that:
+- The code can be full understood from the ground up (Logic --> actual code)
+- Errors that occur can be easily traced and fixed
+- Handing over goes smoothly since the entire system is well documented
+
 
 I arrived at this method of working with AI after trial and error at
 my last job, and found it to be one of the more effective ways to use
@@ -76,7 +82,7 @@ that may exist:
 
 Any errors found in the plan are sent to Claude to review and fix.
 This is an iterative process, repeated until no more major errors are
-found.
+found. Note that not all errors found are chosen to be fixed only the one's deemed necessary for the current version of the web application as some errors found can be trivial or even intentional depending on the current needs of the system. 
 
 ## 3. Implementation
 
@@ -88,7 +94,7 @@ prompt is used for essentially the rest of development:
 Also, the prompt below was used to ensure that the code is readable in
 case any sections need to be reviewed in the future:
 
-2. **"during coding ensure that all code is clearly commented so that
+2. **"During coding ensure that all code is clearly commented so that
    someone reading the code would know what the code does and the
    purpose of the code as well"**
 

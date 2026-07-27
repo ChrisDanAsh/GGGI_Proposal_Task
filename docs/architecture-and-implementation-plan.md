@@ -2990,16 +2990,16 @@ five seconds.
 
   | Project name | Country | Category | Budget USD | Start date |
   |---|---|---|---|---|
-  | Lake Turkana Solar Mini-Grid Expansion | KE | renewable_energy | 2450000.00 | 2026-03-01 |
-  | Nairobi Distribution Network Smart Metering | KE | smart_grid | 1180000.00 | 2026-05-15 |
-  | Rift Valley Flood Exposure Atlas | ET | climate_risk_mapping | 640000.00 | 2026-01-20 |
+  | Lake Turkana Solar Mini-Grid Expansion | KE | renewable_energy | 2450000.00 | 2027-03-01 |
+  | Nairobi Distribution Network Smart Metering | KE | smart_grid | 1180000.00 | 2027-05-15 |
+  | Rift Valley Flood Exposure Atlas | ET | climate_risk_mapping | 640000.00 | 2027-01-20 |
   | Addis Ababa Industrial Emissions MRV Platform | ET | mrv | 890000.00 | *(none)* |
-  | Kigali Rooftop Solar Cooperative | RW | renewable_energy | 375000.00 | 2026-07-01 |
-  | Mekong Delta Saltwater Intrusion Mapping | VN | climate_risk_mapping | 1520000.00 | 2026-02-10 |
-  | Java Geothermal Wellhead Pilot | ID | renewable_energy | 4300000.00 | 2026-09-01 |
-  | Luzon Typhoon Grid Resilience Upgrade | PH | smart_grid | 2760000.00 | 2026-04-05 |
-  | Gobi Desert Utility-Scale Solar Corridor | MN | renewable_energy | 3100000.00 | 2026-06-12 |
-  | Andean Glacier Retreat Monitoring Network | PE | climate_risk_mapping | 725000.00 | 2026-08-18 |
+  | Kigali Rooftop Solar Cooperative | RW | renewable_energy | 375000.00 | 2027-07-01 |
+  | Mekong Delta Saltwater Intrusion Mapping | VN | climate_risk_mapping | 1520000.00 | 2027-02-10 |
+  | Java Geothermal Wellhead Pilot | ID | renewable_energy | 4300000.00 | 2027-09-01 |
+  | Luzon Typhoon Grid Resilience Upgrade | PH | smart_grid | 2760000.00 | 2027-04-05 |
+  | Gobi Desert Utility-Scale Solar Corridor | MN | renewable_energy | 3100000.00 | 2027-06-12 |
+  | Andean Glacier Retreat Monitoring Network | PE | climate_risk_mapping | 725000.00 | 2027-08-18 |
 
   Each entry also carries a `summary` of 120–280 characters written
   in the register of a real funding application — one or two
@@ -3875,6 +3875,16 @@ into the database, where concurrency cannot defeat it. The service
 check stays, because it produces the friendly message; the index
 becomes the backstop, caught as an `IntegrityError` and translated
 into the same `DuplicateProposalError`.
+
+**Rejecting a start date before the submitted date.** `start_date` is
+currently validated only for type — any date parses, including one
+earlier than `created_at`. A `field_validator` (or a service-layer
+check, since `created_at` is stamped by the database rather than
+known to Pydantic at parse time) comparing the two and raising the
+same validation-error path as the other `start_date` rules would
+close this. Left open for now because the seed data is consistent by
+construction — see `scripts/seed.py` — not because the database or the
+schema enforces it. This was found during live testing of the site
 
 **User accounts and per-user scoping.** The `owner_id` column already
 exists and is nullable. Adding session-based authentication, setting

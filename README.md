@@ -5,9 +5,14 @@ A small web application for the Climate Technology Accelerator Fund
 proposals, validated and stored in Postgres, then browsed, filtered,
 edited, and deleted. Built for assignment reference **INT_CTL015_E1**.
 
-**Live demo:** [gggi-proposal-task.onrender.com](https://gggi-proposal-task.onrender.com)
-*(hosted on Render's free tier — the instance spins down when idle, so
-the first request after a while can take up to a minute to load)*
+---
+
+## Live Demo
+
+**Website:** [gggi-proposal-task.onrender.com](https://gggi-proposal-task.onrender.com)
+
+*Hosted on Render's free tier — the instance spins down when idle, so
+the first request after a while can take up to a minute to load*
 
 ![The populated list page](docs/img/list-page.png)
 
@@ -127,11 +132,15 @@ the design specification this application was built from.
 
 ## Design decisions
 
+This web app was made with future extensions in mind. Therefore it was engineered so that future features could be easily added without changing too much of the core web app functionality. Below are some of the core design decisions made with all of the detailed design decisions in the [`docs/architecture-and-implementation-plan.md`](docs/architecture-and-implementation-plan.md).
+
+**Core Design Decisions:**
+
 **Proposals are shared, not per-user.** The assignment mentions no
 accounts or logins and asks for *all* submitted proposals to be
 displayed, so the app treats proposals as one shared collection, as
 would suit an internal review team. A nullable `owner_id` column
-exists so per-user scoping could be added later without rebuilding the
+exists in the web app DB so per-user scoping could be added later without rebuilding the
 table.
 
 **The country list is data, not code.** All 54 GGGI member states are
@@ -193,6 +202,9 @@ reach.
 - A partial unique index backstopping the application-level
   uniqueness check against a race between two simultaneous
   submissions.
+- Rejecting a planned start date that falls before the proposal's
+  submitted date — `start_date` is currently validated only for type,
+  not against `created_at`.
 - A proper error-tracking setup.
 
 > The full list, each with an estimate of the work involved, is in
