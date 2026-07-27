@@ -602,7 +602,7 @@ uvicorn[standard]==0.34.0
 jinja2==3.1.5
 pydantic==2.13.4
 pydantic-settings==2.14.2
-sqlalchemy==2.0.36
+sqlalchemy==2.0.41
 alembic==1.14.0
 psycopg[binary]==3.2.13
 python-multipart==0.0.20
@@ -610,10 +610,12 @@ pytest==8.3.4
 httpx==0.28.1
 ```
 
-**`pydantic`, `pydantic-settings`, and `psycopg[binary]` are pinned
-above their originally intended versions, because installation on
-this machine proved it necessary — this is the resolved state, not a
-hypothetical.** Two separate wheel gaps surfaced against Python 3.14:
+**`pydantic`, `pydantic-settings`, `psycopg[binary]`, and
+`sqlalchemy` are pinned above their originally intended versions,
+because installation and use on this machine proved it necessary —
+this is the resolved state, not a hypothetical.** Three separate
+Python 3.14 gaps surfaced, two at install time (missing wheels) and
+one only once the ORM models (Module 5) were actually exercised:
 
 - `psycopg[binary]==3.2.3` has no `cp314` wheel; `3.2.10` is the
   earliest patch on the 3.2.x line that does. Bumped to `3.2.13`, the
@@ -628,6 +630,18 @@ hypothetical.** Two separate wheel gaps surfaced against Python 3.14:
   `pydantic-settings` to `2.14.2` (the versions current at build
   time), which pull `pydantic-core==2.46.4`, confirmed to ship a
   `cp314` wheel.
+- `sqlalchemy==2.0.36` installs cleanly (it has a `cp314` wheel) but
+  fails at class-definition time, not at import time, so the gap
+  surfaced only once Module 5 defined a real model: any `Mapped[X |
+  None]` column annotation — `start_date`, `owner_id`, `deleted_at` —
+  raised `TypeError: descriptor '__getitem__' requires a
+  'typing.Union' object but received a 'tuple'` while SQLAlchemy
+  resolved the annotation, a consequence of Python 3.14's PEP 649
+  lazy-annotation evaluation that 2.0.36 does not yet handle.
+  Bisected against the published patch releases: `2.0.40` still
+  fails, `2.0.41` is the first patch that resolves it. Bumped to
+  `2.0.41` rather than the newest `2.0.x` patch, keeping the change as
+  small as possible, consistent with the other two entries here.
 
 Before installing on another machine, re-verify with
 `pip index versions <package>` and a `pip download --no-deps
