@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{ status_code }} &mdash; {{ app_name }}{% endblock %}
+
+{% block content %}
+  {#
+    Extends base.html so a wrong URL or a missing proposal produces a
+    page that still looks like the rest of the application, rather than
+    a bare JSON object - registered in app/main.py's exception handler
+    for any browser request, while /api requests keep getting JSON.
+  #}
+  <h1>{{ status_code }}</h1>
+  <p>{{ detail }}</p>
+  <p><a href="/proposals">Back to proposals</a></p>
+{% endblock %}

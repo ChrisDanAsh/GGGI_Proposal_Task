@@ -3,10 +3,22 @@
 # (`uvicorn app.main:app`). Nothing else in the codebase should define
 # routes directly on an app object other than this one.
 
-from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from pathlib import Path
+
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, RedirectResponse, Response
+from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.config import get_settings
+from app.web import proposals as web_proposals
+from app.web.templates import templates
+
+# Derived from __file__, not written as the relative string "app/static" -
+# a relative path resolves against the working directory, which differs
+# between a laptop, a test runner, and a container, and would produce a
+# startup crash that is tedious to trace back to its real cause.
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 # Read once, at import time, rather than in every route - get_settings()
 # is cached (Module 1), so this is the one parse of the environment.
@@ -27,11 +39,37 @@ app = FastAPI(
     redoc_url=None,
 )
 
-# Static mount, both routers, and the HTML-aware exception handler are added
-# in Phases 4-5 (Modules 11-14), once app/static/ and the routers exist.
-# Mounting StaticFiles against a directory that does not exist yet would
-# crash the app at import time, and there is nothing for the routers to
-# include until app/web/proposals.py and app/api/proposals.py are written.
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+app.include_router(web_proposals.router)
+# The JSON API router (Module 14, Phase 5) is included here once it
+# exists; nothing above depends on it, so this file needs only one more
+# line - `app.include_router(api_proposals.router)` - when that module lands.
+
+
+@app.exception_handler(StarletteHTTPException)
+def http_exception_handler(
+    request: Request, exc: StarletteHTTPException
+) -> Response:
+    """Render a styled HTML error page for a browser request.
+
+    Registered on Starlette's own HTTPException (not FastAPI's re-export)
+    so it also catches errors raised inside Starlette itself, such as an
+    unmatched route producing a plain 404 before any route code runs.
+    Branches on the path prefix so a future /api/... request (Module 14)
+    keeps getting a JSON error body it can parse, while every HTML route
+    in this module gets a page that still looks like the rest of the site
+    (error.html) rather than a bare JSON object.
+    """
+    if request.url.path.startswith("/api"):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.detail}
+        )
+    return templates.TemplateResponse(
+        request=request,
+        name="error.html",
+        context={"status_code": exc.status_code, "detail": exc.detail},
+        status_code=exc.status_code,
+    )
 
 
 @app.get("/", include_in_schema=False)

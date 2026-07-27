@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}{{ proposal.project_name }} &mdash; {{ app_name }}{% endblock %}
+
+{% block content %}
+  <h1>{{ proposal.project_name }}</h1>
+
+  <dl class="detail-list">
+    <dt>Country</dt>
+    <dd>{{ proposal.country | country_label }}</dd>
+
+    <dt>Category</dt>
+    <dd>{{ proposal.category | category_label }}</dd>
+
+    <dt>Estimated budget</dt>
+    <dd>{{ proposal.budget_usd | money }}</dd>
+
+    <dt>Planned start date</dt>
+    <dd>{{ proposal.start_date | date_display }}</dd>
+
+    <dt>Submitted</dt>
+    <dd>{{ proposal.created_at | date_display }}</dd>
+
+    <dt>Last updated</dt>
+    <dd>{{ proposal.updated_at | date_display }}</dd>
+
+    <dt>Project summary</dt>
+    <dd>
+      {% if proposal.summary %}
+        <p class="summary-text">{{ proposal.summary }}</p>
+      {% else %}
+        <p class="summary-text empty">No summary provided.</p>
+      {% endif %}
+    </dd>
+  </dl>
+
+  <div class="actions">
+    <a class="button" href="/proposals/{{ proposal.id }}/edit">Edit</a>
+
+    {#
+      The project name travels as a data- attribute and is read by
+      confirm-delete.js with getAttribute(), never interpolated into an
+      inline event handler. An inline `onsubmit="...{{ proposal.project_name }}..."`
+      would look protected by Jinja's autoescaping and would not be: the
+      HTML parser decodes character references in an attribute value
+      before the JavaScript parser reads what remains, so a proposal
+      named `'); alert(1); //` would break out of the string literal and
+      execute. A data- attribute has no such second parsing pass - see
+      app/static/confirm-delete.js and W-27 in the test suite.
+    #}
+    <form method="post"
+          action="/proposals/{{ proposal.id }}/delete"
+          class="delete-form"
+          data-project-name="{{ proposal.project_name }}">
+      <button type="submit" class="button button-danger">Delete</button>
+    </form>
+
+    <a href="/proposals">Back to list</a>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/confirm-delete.js" defer></script>
+{% endblock %}

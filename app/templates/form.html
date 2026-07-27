@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == "edit" %}Edit proposal{% else %}Submit a proposal{% endif %} &mdash; {{ app_name }}{% endblock %}
+
+{% block content %}
+  <h1>{% if mode == "edit" %}Edit proposal{% else %}Submit a proposal{% endif %}</h1>
+  <p class="form-legend"><span class="required">*</span> Required field</p>
+
+  {#
+    The form deliberately carries no `novalidate` attribute. `novalidate`
+    is a boolean HTML attribute: the browser disables native validation
+    whenever the attribute is *present*, regardless of its value, so
+    writing `novalidate="false"` would switch validation off exactly as
+    effectively as `novalidate` alone. Leaving the attribute out entirely
+    is what keeps `required`, `min`, `step`, and `maxlength` below active
+    as real browser-side checks - see app/schemas/proposal.py for why the
+    server re-checks every one of them regardless.
+  #}
+  <form method="post" action="{{ action }}" class="proposal-form">
+
+    <div class="field{% if errors.project_name %} field-invalid{% endif %}">
+      <label for="project_name">Project name <span class="required">*</span></label>
+      <input type="text" id="project_name" name="project_name"
+             value="{{ values.project_name | default('') }}"
+             maxlength="200" required
+             {% if errors.project_name %}aria-invalid="true"
+             aria-describedby="project_name-error"{% endif %}>
+      {% if errors.project_name %}
+        <p class="field-error" id="project_name-error">{{ errors.project_name }}</p>
+      {% endif %}
+    </div>
+
+    <div class="field{% if errors.country %} field-invalid{% endif %}">
+      <label for="country">Target country <span class="required">*</span></label>
+      {#
+        The <select> only offers a real GGGI member, but that restricts
+        what is convenient to submit, not what is possible to submit -
+        app/schemas/proposal.py re-checks country membership on arrival
+        regardless of this dropdown (see its module docstring for why).
+      #}
+      <select id="country" name="country" required
+              {% if errors.country %}aria-invalid="true"
+              aria-describedby="country-error"{% endif %}>
+        <option value="" disabled {% if not values.country %}selected{% endif %}>Select a country</option>
+        {% for code, label in country_choices %}
+          <option value="{{ code }}" {% if values.country == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if errors.country %}
+        <p class="field-error" id="country-error">{{ errors.country }}</p>
+      {% endif %}
+    </div>
+
+    <div class="field{% if errors.category %} field-invalid{% endif %}">
+      <label for="category">Climate technology category <span class="required">*</span></label>
+      <select id="category" name="category" required
+              {% if errors.category %}aria-invalid="true"
+              aria-describedby="category-error"{% endif %}>
+        <option value="" disabled {% if not values.category %}selected{% endif %}>Select a category</option>
+        {% for code, label in category_choices %}
+          <option value="{{ code }}" {% if values.category == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if errors.category %}
+        <p class="field-error" id="category-error">{{ errors.category }}</p>
+      {% endif %}
+    </div>
+
+    <div class="field{% if errors.budget_usd %} field-invalid{% endif %}">
+      <label for="budget_usd">Estimated budget (USD) <span class="required">*</span></label>
+      {#
+        min="0.01", not min="0": the rule is that the budget must be
+        positive, and min="0" would let zero pass the browser's check
+        only to be rejected by the server a moment later.
+      #}
+      <input type="number" id="budget_usd" name="budget_usd"
+             value="{{ values.budget_usd | default('') }}"
+             required min="0.01" step="0.01" inputmode="decimal"
+             {% if errors.budget_usd %}aria-invalid="true"
+             aria-describedby="budget_usd-error"{% endif %}>
+      {% if errors.budget_usd %}
+        <p class="field-error" id="budget_usd-error">{{ errors.budget_usd }}</p>
+      {% endif %}
+    </div>
+
+    <div class="field{% if errors.start_date %} field-invalid{% endif %}">
+      <label for="start_date">Planned start date</label>
+      <input type="date" id="start_date" name="start_date"
+             value="{{ values.start_date | default('') }}"
+             {% if errors.start_date %}aria-invalid="true"
+             aria-describedby="start_date-error"{% endif %}>
+      {% if errors.start_date %}
+        <p class="field-error" id="start_date-error">{{ errors.start_date }}</p>
+      {% endif %}
+    </div>
+
+    <div class="field{% if errors.summary %} field-invalid{% endif %}">
+      <label for="summary">Project summary</label>
+      <textarea id="summary" name="summary" maxlength="300" rows="5"
+                {% if errors.summary %}aria-invalid="true"
+                aria-describedby="summary-error"{% endif %}>{{ values.summary | default('') }}</textarea>
+      {#
+        The initial count is written into the HTML so the page renders
+        sensibly with scripting unavailable; counter.js corrects it (and
+        initialises it properly for a pre-filled edit form) on load.
+      #}
+      <p class="counter" id="summary-counter">{{ values.summary | default('') | length }} / 300 &middot; {{ 300 - (values.summary | default('') | length) }} remaining</p>
+      {% if errors.summary %}
+        <p class="field-error" id="summary-error">{{ errors.summary }}</p>
+      {% endif %}
+    </div>
+
+    <div class="actions">
+      <button type="submit">{% if mode == "edit" %}Save changes{% else %}Submit proposal{% endif %}</button>
+      <a class="button" href="{% if mode == 'edit' %}/proposals/{{ proposal.id }}{% else %}/proposals{% endif %}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/counter.js" defer></script>
+{% endblock %}

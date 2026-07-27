@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Proposals &mdash; {{ app_name }}{% endblock %}
+
+{% block content %}
+  <h1>Proposals</h1>
+  <p>Showing {{ proposals | length }} proposal{{ "s" if proposals | length != 1 else "" }}{% if selected_country or selected_category %} (filtered){% endif %}</p>
+
+  {#
+    A GET form, not POST: a filtered view then has its own URL, which
+    can be bookmarked, shared, and reloaded, and the back button behaves
+    correctly - that is what filtering means on the web. Both selects
+    submit together in one form so the filters compose (Kenya AND Smart
+    Grid narrows to the intersection), which the repository already
+    supports since its conditions are appended independently.
+  #}
+  <form method="get" action="/proposals" class="filters">
+    <div class="field">
+      <label for="country">Country</label>
+      <select id="country" name="country">
+        <option value="" {% if not selected_country %}selected{% endif %}>All countries</option>
+        {% for code, label in country_choices %}
+          <option value="{{ code }}" {% if selected_country == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="category">Category</label>
+      <select id="category" name="category">
+        <option value="" {% if not selected_category %}selected{% endif %}>All categories</option>
+        {% for code, label in category_choices %}
+          <option value="{{ code }}" {% if selected_category == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">Apply filters</button>
+    {% if selected_country or selected_category %}
+      <a href="/proposals">Clear</a>
+    {% endif %}
+  </form>
+
+  <div class="table-scroll">
+    <table class="proposal-table">
+      <thead>
+        <tr>
+          <th>Project name</th>
+          <th>Country</th>
+          <th>Category</th>
+          <th class="numeric">Budget (USD)</th>
+          <th>Start date</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in proposals %}
+          <tr>
+            <td><a href="/proposals/{{ p.id }}">{{ p.project_name }}</a></td>
+            <td>{{ p.country | country_label }}</td>
+            <td>{{ p.category | category_label }}</td>
+            <td class="numeric">{{ p.budget_usd | money }}</td>
+            <td>{{ p.start_date | date_display }}</td>
+            <td>{{ p.created_at | date_display }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6">
+              {% if selected_country or selected_category %}
+                No proposals match these filters.
+              {% else %}
+                No proposals yet &mdash; <a href="/proposals/new">submit the first one</a>.
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
